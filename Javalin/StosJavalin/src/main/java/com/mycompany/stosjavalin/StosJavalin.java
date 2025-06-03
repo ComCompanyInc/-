@@ -7,6 +7,8 @@ package com.mycompany.stosjavalin;
 import com.mycompany.stosjavalin.controller.UserController;
 import com.mycompany.stosjavalin.entity.User;
 import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
+import io.javalin.plugin.bundled.RouteOverviewPlugin;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -38,6 +40,8 @@ public class StosJavalin {
     }
     
     public void injection() {
-        UserController userController = new UserController(javalin, port, sessionFactory);
+        UserController userController = new UserController(javalin, sessionFactory);
+        
+        javalin.start(port);
     }
 }

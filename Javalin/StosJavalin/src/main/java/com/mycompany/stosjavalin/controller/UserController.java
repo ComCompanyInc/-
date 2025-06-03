@@ -16,17 +16,17 @@ import org.hibernate.SessionFactory;
 public class UserController {
     private final Javalin javalin;
     
-    public UserController(Javalin javalin, int port, SessionFactory sessionFactory) {
+    public UserController(Javalin javalin, SessionFactory sessionFactory) {
         this.javalin = javalin;
-        configureRoutes(port, sessionFactory);
+        configureRoutes(sessionFactory);
     }
     
-    private void configureRoutes(int port, SessionFactory sessionFactory) {
+    private void configureRoutes(SessionFactory sessionFactory) {
         
         
         javalin.get("/users", ctx -> {
             UserRepository userRepository = new UserRepository(sessionFactory);
             ctx.json(userRepository.getAllUsers());
-        }).start(port);
+        });
     }
 }
