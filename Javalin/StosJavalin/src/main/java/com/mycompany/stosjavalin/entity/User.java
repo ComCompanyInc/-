@@ -86,7 +86,7 @@ public class User {
         return registrationDate;
     }
 
-    public void setRegistrationDate(Date registrationDate) {
+    public void setRegistrationDate(@JsonFormat(pattern = "yyyy-MM-dd") Date registrationDate) {
         this.registrationDate = registrationDate;
     }
 
