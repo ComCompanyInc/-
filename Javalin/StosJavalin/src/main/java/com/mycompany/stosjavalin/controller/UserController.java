@@ -7,11 +7,13 @@ package com.mycompany.stosjavalin.controller;
 import com.mycompany.stosjavalin.StosJavalin;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.repository.UserRepository;
+import com.mycompany.stosjavalin.security.JwtSimple;
 import io.javalin.Javalin;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import org.hibernate.SessionFactory;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -29,7 +31,47 @@ public class UserController {
         UserRepository userRepository = new UserRepository(sessionFactory);
         
         javalin.get("/users", ctx -> {
-            ctx.json(userRepository.getAllUsers());
+            String authHeader = ctx.header("Authorization");
+           
+                //System.out.println("UourTocken(login) = " + authHeader);
+
+                //System.out.println("tocDec = "+JwtSimple.extractLogin(authHeader.substring(7)));
+
+                //ctx.json(authHeader.substring(7) + " " + JwtSimple.getJwtSimple().checkToken(authHeader.substring(7)));
+                
+            if (authHeader != null && JwtSimple.getJwtSimple().checkToken(authHeader.substring(7))) {
+                ctx.json(userRepository.getAllUsers());
+            } else {
+                ctx.json("Вы неавторизированны в системе!");
+            }
+        });
+        
+        //проверка
+        javalin.post("/login", ctx -> { // передаем на авторизацию для получения токена login и password
+            String login = ctx.formParam("login");
+            String password = ctx.formParam("password");
+
+            System.out.println("login -> " + login);
+            System.out.println("password -> " + password);
+            System.out.println("Hashed password = " + BCrypt.hashpw(password, BCrypt.gensalt()));
+            
+            // 1. Находим пользователя в БД
+            User user = userRepository.getUserByLogin(login);
+            if (user == null) {
+                ctx.status(401).result("Неверный логин или пароль");
+                return;
+            }
+
+            // 2. Проверяем пароль (используем BCrypt)
+            boolean isPasswordValid = BCrypt.checkpw(password, user.getPassword());
+            if (!isPasswordValid) {
+                ctx.status(401).result("Неверный логин или пароль");
+                return;
+            }
+
+            // 3. Генерируем токен и отдаём
+            String token = JwtSimple.getJwtSimple().createToken(login);
+            ctx.json(Map.of("token", token));
         });
         
         javalin.post("/users", ctx -> {

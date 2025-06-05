@@ -45,12 +45,31 @@
             <version>2.19.0</version>
         </dependency>
         
-        <!-- Swagger UI через WebJars -->
+        <!-- JWT (для токенов) -->
+        <dependency> <!--только интерфейсы и аннотации-->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency> <!--основная реализация-->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency> <!--сериализация/десериализация-->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- BCrypt (хеширование паролей) -->
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>swagger-ui</artifactId>
-            <version>5.9.0</version>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
     </dependencies>
-    
+   
 </project>

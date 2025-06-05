@@ -1,4 +1,6 @@
-com/mycompany/stosjavalin/controller/UserController.class
-com/mycompany/stosjavalin/entity/User.class
-com/mycompany/stosjavalin/repository/UserRepository.class
-com/mycompany/stosjavalin/StosJavalin.class
+com\mycompany\stosjavalin\security\JwtSimple.class
+com\mycompany\stosjavalin\StosJavalin.class
+com\mycompany\stosjavalin\repository\UserRepository.class
+com\mycompany\stosjavalin\controller\UserController.class
+com\mycompany\stosjavalin\entity\User.class
+com\mycompany\stosjavalin\security\JwtBarer.class

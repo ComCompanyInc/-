@@ -38,6 +38,7 @@ public class StosJavalin {
     }
     
     public void injection() {
+        //Важно: сначала регестрируем маршруты, потом добавляем middleware
         UserController userController = new UserController(javalin, sessionFactory);
         
         javalin.start(port);

@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.Date;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -119,6 +120,6 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = BCrypt.hashpw(password, BCrypt.gensalt()); // кладем хешированный пароль
     }
 }
