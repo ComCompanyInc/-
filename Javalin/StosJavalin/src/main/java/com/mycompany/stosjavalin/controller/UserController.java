@@ -39,7 +39,7 @@ public class UserController {
 
                 //ctx.json(authHeader.substring(7) + " " + JwtSimple.getJwtSimple().checkToken(authHeader.substring(7)));
                 
-            if (authHeader != null && JwtSimple.getJwtSimple().checkToken(authHeader.substring(7))) {
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) {
                 ctx.json(userRepository.getAllUsers());
             } else {
                 ctx.json("Вы неавторизированны в системе!");
@@ -70,7 +70,7 @@ public class UserController {
             }
 
             // 3. Генерируем токен и отдаём
-            String token = JwtSimple.getJwtSimple().createToken(login);
+            String token = JwtSimple.createToken(login);
             ctx.json(Map.of("token", token));
         });
         

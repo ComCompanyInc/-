@@ -10,15 +10,15 @@ import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 
 /**
- *
+ * Этот класс просто дешифрует токены по ключу 
+ * (ключ генерируется каждый раз при перезапуске сервера новый, поэтому старые токены до ерезапуска становятся невалидными)
+ * все токены генерируются на роуте \login по логину и паролю, хранятся на клиенских приложениях
+ * и передаются в заголовках запроса для сервера
  * @author User
  */
 public class JwtSimple {
     // Секретный ключ (как "пароль" для подписи токенов)
-    private static JwtSimple jwtSimple;
     private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    
-    private JwtSimple(){}
     
     /**
      * Создание токена
@@ -62,9 +62,5 @@ public class JwtSimple {
             .parseClaimsJws(token)     // Декодируем токен
             .getBody()                 // Достаём "тело" токена (payload)
             .getSubject();             // Берём логин (subject)
-    }
-
-    public static JwtSimple getJwtSimple() {
-        return jwtSimple;
     }
 }
