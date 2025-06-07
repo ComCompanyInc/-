@@ -30,10 +30,10 @@ public class User {
     private String code;
     
     @Column(name = "first_name")
-    private String FirstName;
+    private String firstName;
     
     @Column(name = "last_name")
-    private String LastName;
+    private String lastName;
     
     @Column(name = "registration_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -68,19 +68,19 @@ public class User {
     }
 
     public String getFirstName() {
-        return FirstName;
+        return firstName;
     }
 
-    public void setFirstName(String FirstName) {
-        this.FirstName = FirstName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
-    public void setLastName(String LastName) {
-        this.LastName = LastName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public Date getRegistrationDate() {

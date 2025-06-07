@@ -4,13 +4,12 @@
  */
 package com.mycompany.stosjavalin.controller;
 
-import com.mycompany.stosjavalin.StosJavalin;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.repository.UserRepository;
 import com.mycompany.stosjavalin.security.JwtSimple;
 import io.javalin.Javalin;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.hibernate.SessionFactory;
 import org.mindrot.jbcrypt.BCrypt;
@@ -31,18 +30,29 @@ public class UserController {
         UserRepository userRepository = new UserRepository(sessionFactory);
         
         javalin.get("/users", ctx -> {
-            String authHeader = ctx.header("Authorization");
-           
-                //System.out.println("UourTocken(login) = " + authHeader);
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                try {
+                    // Получаем параметры из query string (?code=yuk&firstName=John)
+                    String code = ctx.queryParam("code");
+                    String firstName = ctx.queryParam("firstName");
+                    String lastName = ctx.queryParam("lastName");
+                    Integer pageNumber = Integer.parseInt(ctx.queryParam("page"));
 
-                //System.out.println("tocDec = "+JwtSimple.extractLogin(authHeader.substring(7)));
+                    List<User> users = userRepository.getUsersByParam(
+                        code,
+                        firstName,
+                        lastName,
+                        pageNumber
+                    );
 
-                //ctx.json(authHeader.substring(7) + " " + JwtSimple.getJwtSimple().checkToken(authHeader.substring(7)));
-                
-            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) {
-                ctx.json(userRepository.getAllUsers());
+                    ctx.json(users);
+                } catch (Exception e) {
+                    ctx.status(500).json("Ошибка сервера: " + e.getMessage());
+                }
             } else {
-                ctx.json("Вы неавторизированны в системе!");
+                ctx.status(401).json("Вы неавторизированы в системе!");
             }
         });
         
@@ -75,73 +85,103 @@ public class UserController {
         });
         
         javalin.post("/users", ctx -> {
-            // 1. Парсим JSON в объект User
-            User newUser = ctx.bodyAsClass(User.class);
-            
-            // 2. Сохраняем обьект в БД
-            User user = userRepository.saveUser(newUser);
-            ctx.json(user); // Автоматически в JSON
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                // 1. Парсим JSON в объект User
+                User newUser = ctx.bodyAsClass(User.class);
+
+                // 2. Сохраняем обьект в БД
+                User user = userRepository.saveUser(newUser);
+                ctx.json(user); // Автоматически в JSON
+            } else {
+                ctx.status(401).json("Вы неавторизированы в системе!");
+            }
         });
         
         javalin.get("/users/{id}", ctx -> {
-            long userId = Long.parseLong(ctx.pathParam("id"));
-            User user = userRepository.getUserById(userId);
-            ctx.json(user); // Автоматически в JSON
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                long userId = Long.parseLong(ctx.pathParam("id"));
+                User user = userRepository.getUserById(userId);
+                ctx.json(user); // Автоматически в JSON
+            } else {
+                ctx.status(401).json("Вы неавторизированы в системе!");
+            }
         });
         
         javalin.put("/users", ctx -> {
-            // 1. Парсим JSON в объект User
-            User updateUser = ctx.bodyAsClass(User.class);
-            
-            // 2. Сохраняем обьект в БД
-            User user = userRepository.updateUser(updateUser);
-            ctx.json(user); // Автоматически в JSON
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                // 1. Парсим JSON в объект User
+                User updateUser = ctx.bodyAsClass(User.class);
+
+                // 2. Сохраняем обьект в БД
+                User user = userRepository.updateUser(updateUser);
+                ctx.json(user); // Автоматически в JSON
+            } else {
+                ctx.status(401).json("Вы неавторизированы в системе!");
+            }
         });
         
         javalin.delete("/users/{id}", ctx -> {
-            long userId = Long.parseLong(ctx.pathParam("id"));
-            User user = userRepository.deleteUser(userId);
-            ctx.json(user);
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                long userId = Long.parseLong(ctx.pathParam("id"));
+                User user = userRepository.deleteUser(userId);
+                ctx.json(user);
+            } else {
+                ctx.status(401).json("Вы неавторизированы в системе!");
+            }
         });
         
         javalin.patch("/users/{id}", ctx -> {
-            // Получаем ID из URL
-            long id = Long.parseLong(ctx.pathParam("id"));
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+    
+            if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+                // Получаем ID из URL
+                long id = Long.parseLong(ctx.pathParam("id"));
 
-            // Парсим JSON тело запроса в Map
-            Map<String, Object> updates = ctx.bodyAsClass(Map.class);
-            
-            // Достаём пользователя из БД
-            User existingUser = userRepository.getUserById(id);
+                // Парсим JSON тело запроса в Map
+                Map<String, Object> updates = ctx.bodyAsClass(Map.class);
 
-            // Частичное обновление полей
-            if (updates.containsKey("id")) {
-                existingUser.setId(((Integer) updates.get("id")).longValue());
+                // Достаём пользователя из БД
+                User existingUser = userRepository.getUserById(id);
+
+                // Частичное обновление полей
+                if (updates.containsKey("id")) {
+                    existingUser.setId(((Integer) updates.get("id")).longValue());
+                }
+                if (updates.containsKey("code")) {
+                    existingUser.setCode((String) updates.get("code"));
+                }
+                if (updates.containsKey("firstName")) {
+                    existingUser.setFirstName((String) updates.get("first_name"));
+                }
+                if (updates.containsKey("lastName")) {
+                    existingUser.setLastName((String) updates.get("last_name"));
+                }
+                if (updates.containsKey("about")) {
+                    existingUser.setAbout((String) updates.get("about"));
+                }
+                if (updates.containsKey("isBlocked")) {
+                    existingUser.setIsBlocked((boolean) updates.get("isBlocked"));
+                }
+                if (updates.containsKey("registrationDate")) {
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+                    existingUser.setRegistrationDate(format.parse((String) updates.get("registrationDate")));
+                }
+
+                // Сохраняем изменения
+                User updatedUser = userRepository.updateUser(existingUser);
+                ctx.json(updatedUser);
+            } else {
+                ctx.status(401).json("Вы неавторизированы в системе!");
             }
-            if (updates.containsKey("code")) {
-                existingUser.setCode((String) updates.get("code"));
-            }
-            if (updates.containsKey("firstName")) {
-                existingUser.setFirstName((String) updates.get("first_name"));
-            }
-            if (updates.containsKey("lastName")) {
-                existingUser.setLastName((String) updates.get("last_name"));
-            }
-            if (updates.containsKey("about")) {
-                existingUser.setAbout((String) updates.get("about"));
-            }
-            if (updates.containsKey("isBlocked")) {
-                existingUser.setIsBlocked((boolean) updates.get("isBlocked"));
-            }
-            if (updates.containsKey("registrationDate")) {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                
-                existingUser.setRegistrationDate(format.parse((String) updates.get("registrationDate")));
-            }
-            
-            // Сохраняем изменения
-            User updatedUser = userRepository.updateUser(existingUser);
-            ctx.json(updatedUser);
         });
     }
 }

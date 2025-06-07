@@ -5,6 +5,7 @@
 package com.mycompany.stosjavalin.repository;
 
 import com.mycompany.stosjavalin.entity.User;
+import com.mycompany.stosjavalin.service.ConfigData;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,27 +22,57 @@ public class UserRepository {
         this.sessionFactory = sessionFactory;
     }
     
-    public List<User> getUsersByParam(String code, String firstName, String lastName) {
+    private boolean validateFilters(String filter) {
+        if (filter != null && !filter.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public List<User> getUsersByParam(String code, String firstName, String lastName, Integer pageNumber) {
         Session session = sessionFactory.openSession();
         
         String query = "FROM User u";
         
+        boolean hasCondition = false;
+        
+        if (hasCondition && this.validateFilters(code)) {
+            query += " OR u.code = :code";
+            
+        } else if (this.validateFilters(code)) {
+            query += " WHERE u.code = :code";
+            hasCondition = true;
+        }
+        if (hasCondition  && this.validateFilters(firstName)) {
+            query += " OR u.firstName = :firstName";
+        } else if (this.validateFilters(firstName)) {
+            query += " WHERE u.firstName = :firstName";
+            hasCondition = true;
+        }
+        if (hasCondition && this.validateFilters(lastName)) {
+            query += " OR u.lastName = :lastName";
+        } else if (this.validateFilters(lastName)) {
+            query += " WHERE u.lastName = :lastName";
+            hasCondition = true;
+        }
+        
         Query<User> users = session.createQuery(query, User.class);
         
-        if (code != null && !code.isEmpty()) {
-            query += " AND u.code = :code";
+        if (this.validateFilters(code)) {
             users.setParameter("code", code);
         }
-        if (firstName != null && !firstName.isEmpty()) {
-            query += " AND u.firstName = :firstName";
+        if (this.validateFilters(firstName)) {
             users.setParameter("firstName", firstName);
         }
-        if (lastName != null && !lastName.isEmpty()) {
-            query += " AND u.lastName = :lastName";
+        if (this.validateFilters(lastName)) {
             users.setParameter("lastName", lastName);
         }
         
-        return (List<User>) users;
+        return users
+                .setMaxResults(pageNumber * ConfigData.MIN_AMOUNT_OF_ELEMENTS_FOR_PAGINATION)
+                .setFirstResult((pageNumber - 1) * ConfigData.MIN_AMOUNT_OF_ELEMENTS_FOR_PAGINATION)
+                .getResultList();
     }
     
     public User getUserByLogin(String login) {
