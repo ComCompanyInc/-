@@ -4,13 +4,17 @@
  */
 package com.mycompany.stosjavalin.controller;
 
+import com.mycompany.stosjavalin.dto.UserDto;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.repository.UserRepository;
 import com.mycompany.stosjavalin.security.JwtSimple;
+import com.mycompany.stosjavalin.service.ConfigData;
 import io.javalin.Javalin;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.SessionFactory;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -38,7 +42,9 @@ public class UserController {
                     String code = ctx.queryParam("code");
                     String firstName = ctx.queryParam("firstName");
                     String lastName = ctx.queryParam("lastName");
-                    Integer pageNumber = Integer.parseInt(ctx.queryParam("page"));
+                    Integer pageNumber = (ctx.queryParam("page") != null && !ctx.queryParam("page").isEmpty())
+                            ? Integer.parseInt(ctx.queryParam("page")) 
+                            : 1; //если устой то значение по умолчанию 1
 
                     List<User> users = userRepository.getUsersByParam(
                         code,
@@ -46,8 +52,8 @@ public class UserController {
                         lastName,
                         pageNumber
                     );
-
-                    ctx.json(users);
+                    
+                    ctx.json(ConfigData.translateUserToUserDto(users));
                 } catch (Exception e) {
                     ctx.status(500).json("Ошибка сервера: " + e.getMessage());
                 }
@@ -105,7 +111,11 @@ public class UserController {
             if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
                 long userId = Long.parseLong(ctx.pathParam("id"));
                 User user = userRepository.getUserById(userId);
-                ctx.json(user); // Автоматически в JSON
+                
+                List<User> users = new ArrayList<User>();
+                users.add(user);
+                
+                ctx.json(ConfigData.translateUserToUserDto(users)); // Автоматически в JSON
             } else {
                 ctx.status(401).json("Вы неавторизированы в системе!");
             }
