@@ -4,4 +4,6 @@ com\mycompany\stosjavalin\dto\UserDto.class
 com\mycompany\stosjavalin\repository\UserRepository.class
 com\mycompany\stosjavalin\controller\UserController.class
 com\mycompany\stosjavalin\entity\User.class
+com\mycompany\stosjavalin\entity\UserChannel.class
+com\mycompany\stosjavalin\entity\Channel.class
 com\mycompany\stosjavalin\service\ConfigData.class

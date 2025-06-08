@@ -1,6 +1,8 @@
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\controller\UserController.java
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\dto\UserDto.java
+C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\entity\Channel.java
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\entity\User.java
+C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\entity\UserChannel.java
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\repository\UserRepository.java
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\security\JwtSimple.java
 C:\Users\User\Desktop\ГитПроекты\STOS\Javalin\StosJavalin\src\main\java\com\mycompany\stosjavalin\service\ConfigData.java

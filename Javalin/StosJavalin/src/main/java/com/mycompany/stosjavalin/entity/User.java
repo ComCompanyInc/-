@@ -5,13 +5,20 @@
 package com.mycompany.stosjavalin.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
@@ -51,6 +58,13 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<UserChannel> userChannel = new ArrayList<>();
+    
     public Long getId() {
         return id;
     }
@@ -121,5 +135,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = BCrypt.hashpw(password, BCrypt.gensalt()); // кладем хешированный пароль
+    }
+
+    public List<UserChannel> getUserChannel() {
+        return userChannel;
+    }
+
+    public void setUserChannel(List<UserChannel> userChannel) {
+        this.userChannel = userChannel;
     }
 }
