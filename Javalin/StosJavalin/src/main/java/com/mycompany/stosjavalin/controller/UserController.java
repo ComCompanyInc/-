@@ -94,12 +94,16 @@ public class UserController {
             String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
     
             if (authHeader != null && JwtSimple.checkToken(authHeader.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
-                // 1. Парсим JSON в объект User
-                User newUser = ctx.bodyAsClass(User.class);
+//                if (ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory) != null) {
+                    // 1. Парсим JSON в объект User
+                    User newUser = ctx.bodyAsClass(User.class);
 
-                // 2. Сохраняем обьект в БД
-                User user = userRepository.saveUser(newUser);
-                ctx.json(user); // Автоматически в JSON
+                    // 2. Сохраняем обьект в БД
+                    User user = userRepository.saveUser(newUser);
+                    ctx.json(user); // Автоматически в JSON
+//                } else {
+//                    ctx.status(403).json("Доступ запрещен! Токен указан некорректно");
+//                }
             } else {
                 ctx.status(401).json("Вы неавторизированы в системе!");
             }

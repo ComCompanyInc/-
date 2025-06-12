@@ -4,6 +4,7 @@
 
 package com.mycompany.stosjavalin;
 
+import com.mycompany.stosjavalin.controller.UserChannelController;
 import com.mycompany.stosjavalin.controller.UserController;
 import com.mycompany.stosjavalin.entity.Channel;
 import com.mycompany.stosjavalin.entity.User;
@@ -44,6 +45,7 @@ public class StosJavalin {
     public void injection() {
         //Важно: сначала регестрируем маршруты, потом добавляем middleware
         UserController userController = new UserController(javalin, sessionFactory);
+        UserChannelController userChannelController = new UserChannelController(javalin, sessionFactory);
         
         javalin.start(port);
     }

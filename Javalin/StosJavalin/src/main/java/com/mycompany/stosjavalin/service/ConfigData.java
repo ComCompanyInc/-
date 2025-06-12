@@ -6,8 +6,11 @@ package com.mycompany.stosjavalin.service;
 
 import com.mycompany.stosjavalin.dto.UserDto;
 import com.mycompany.stosjavalin.entity.User;
+import com.mycompany.stosjavalin.repository.UserRepository;
+import com.mycompany.stosjavalin.security.JwtSimple;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.SessionFactory;
 
 /**
  * Хранит статические данные (о количестве элементов для пагинации и тд...)
@@ -32,5 +35,22 @@ public class ConfigData {
             }
             
         return usersDto;    
+    }
+    
+    /**
+     * Расшифроввывает токен и берет по нему пользователя из бд.
+     * @param jwtTocken токен пользователя.
+     * @param sessionFactory сессия для hibernate.
+     * @return Возвращает обьект пользователя
+     */
+    public static User translateJwtTockenToUserObject(String jwtTocken, SessionFactory sessionFactory) {
+        String login = JwtSimple.extractLogin(jwtTocken.substring(7));
+        
+        if (jwtTocken != null && JwtSimple.checkToken(jwtTocken.substring(7))) { //убираем первые 7 символов у токена и чекаем токен на валидность
+            UserRepository userRepository = new UserRepository(sessionFactory);
+            return userRepository.getUserByLogin(login);
+        } else {
+            return null;
+        }
     }
 }
