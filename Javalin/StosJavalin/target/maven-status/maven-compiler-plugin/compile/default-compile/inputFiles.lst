@@ -1,4 +1,5 @@
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/StosJavalin.java
+/home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/controller/ChannelController.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/controller/UserChannelController.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/controller/UserController.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/dto/ChannelDto.java
@@ -7,6 +8,7 @@
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/entity/Channel.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/entity/User.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/entity/UserChannel.java
+/home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/repository/ChannelRepository.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/repository/UserChannelRepository.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/repository/UserRepository.java
 /home/maxim/Документы/СТОС(Javalin)/Javalin/StosJavalin/src/main/java/com/mycompany/stosjavalin/security/JwtSimple.java

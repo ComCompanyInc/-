@@ -1,6 +1,7 @@
 com/mycompany/stosjavalin/dto/ChannelDto.class
 com/mycompany/stosjavalin/dto/UserChannelDto.class
 com/mycompany/stosjavalin/repository/UserRepository.class
+com/mycompany/stosjavalin/controller/ChannelController.class
 com/mycompany/stosjavalin/entity/Channel.class
 com/mycompany/stosjavalin/entity/User.class
 com/mycompany/stosjavalin/entity/UserChannel.class
@@ -10,4 +11,5 @@ com/mycompany/stosjavalin/controller/UserController.class
 com/mycompany/stosjavalin/controller/UserChannelController.class
 com/mycompany/stosjavalin/service/ConfigData.class
 com/mycompany/stosjavalin/repository/UserChannelRepository.class
+com/mycompany/stosjavalin/repository/ChannelRepository.class
 com/mycompany/stosjavalin/StosJavalin.class

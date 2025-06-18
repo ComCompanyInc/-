@@ -25,4 +25,26 @@ public class UserChannelRepository {
         Session session = sessionFactory.openSession();
         return session.createQuery("FROM UserChannel", UserChannel.class).list();
     }
+    
+    /**
+     * Взять пользователей по id канала и id текущего пользователя
+     * @param idChannel id канала
+     * @param idCurrentUser id текущего пользователя
+     * @return лист пользователей в канале
+     */
+    public List<User> getUsersByChannel(Long idChannel, Long idCurrentUser) {
+        Session session = sessionFactory.openSession();
+        UserChannel userChannel = session.createQuery("FROM UserChannel uc WHERE (uc.channel.id = :idChannel) AND (uc.user.id = :idCurrentUser)", UserChannel.class)
+            .setParameter("idChannel", idChannel)
+            .setParameter("idCurrentUser", idCurrentUser)
+            .uniqueResult();
+        
+        if (userChannel != null) {
+            return session.createQuery("SELECT uc.user FROM UserChannel uc WHERE (uc.channel.id = :idChannel) AND (uc.isActiveUserForGroup = true)")
+                .setParameter("idChannel", idChannel)
+                .list();
+        } else {
+            return null;
+        }
+    }
 }

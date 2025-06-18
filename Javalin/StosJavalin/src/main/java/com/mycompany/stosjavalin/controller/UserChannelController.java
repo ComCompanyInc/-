@@ -5,6 +5,7 @@
 package com.mycompany.stosjavalin.controller;
 
 import com.mycompany.stosjavalin.dto.UserChannelDto;
+import com.mycompany.stosjavalin.dto.UserDto;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.entity.UserChannel;
 import com.mycompany.stosjavalin.repository.UserChannelRepository;
@@ -36,10 +37,12 @@ public class UserChannelController {
             User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
             if (currentUser != null) { //если полученный по токену пользователь не пустой
                 
-                List<UserChannelDto> userChannelDto = new ArrayList<>();
+                boolean isActiveUserOnChannel = Boolean.parseBoolean(ctx.queryParam("isActive"));
                 
+                List<UserChannelDto> userChannelDto = new ArrayList<>();
                 for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) {
-                    if (currentUserChannel.getUser().getId() == currentUser.getId()){ //если перебираемые каналы принадлежат текущему пользователю (по id)
+                    if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                        && (currentUserChannel.getIsActiveUserForGroup() == isActiveUserOnChannel)){ //и активность в канале равна параметру
                         userChannelDto.add(new UserChannelDto(currentUserChannel));
                     }
                 }
@@ -47,6 +50,26 @@ public class UserChannelController {
                 ctx.json(userChannelDto);
             } else {
                 ctx.status(403).json("Доступ запрещен! Токен указан некорректно");
+            }
+        });
+        
+        javalin.get("/userChannels/usersByChannel", ctx -> {
+            Long idChannel = Long.parseLong(ctx.queryParam("idChannel"));
+            
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+            
+            Long idCurrentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory).getId();
+            
+            List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, idCurrentUser);
+            if (usersByChannel != null) {
+                List<UserDto> userDto = new ArrayList<>();
+                for (User user : usersByChannel) {
+                    userDto.add(new UserDto(user));
+                }
+                
+                ctx.json(userDto);
+            } else {
+                ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
             }
         });
     }
