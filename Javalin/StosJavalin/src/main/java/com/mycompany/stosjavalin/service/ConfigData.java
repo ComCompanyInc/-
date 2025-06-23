@@ -8,6 +8,7 @@ import com.mycompany.stosjavalin.dto.UserDto;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.repository.UserRepository;
 import com.mycompany.stosjavalin.security.JwtSimple;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.SessionFactory;

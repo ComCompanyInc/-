@@ -4,6 +4,7 @@
  */
 package com.mycompany.stosjavalin.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,17 +26,20 @@ public class UserChannel {
     @Column(name = "id")
     private Long id;
     
-    @ManyToOne
+    @ManyToOne //(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
     
-    @ManyToOne
+    @ManyToOne //(cascade = CascadeType.ALL)
     @JoinColumn(name = "channel_id")
     private Channel channel;
     
     @Column(name = "is_active_user_for_group")
     private boolean isActiveUserForGroup = true;
 
+    @Column(name = "is_author_user_for_group")
+    private boolean isAuthorUserForGroup = false;
+    
     public Long getId() {
         return id;
     }
@@ -52,6 +56,14 @@ public class UserChannel {
         this.isActiveUserForGroup = isActiveUserForGroup;
     }
 
+    public boolean getIsAuthorUserForGroup() {
+        return isAuthorUserForGroup;
+    }
+    
+    public void setIsAuthorUserForGroup(boolean isAuthorUserForGroup) {
+        this.isAuthorUserForGroup = isAuthorUserForGroup;
+    }
+    
     public User getUser() {
         return user;
     }

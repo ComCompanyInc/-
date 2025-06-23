@@ -20,6 +20,16 @@ public class ChannelRepository {
         this.sessionFactory = sessionFactory;
     }
     
+    public Channel findChannelById(Long id) {
+        Session session = sessionFactory.openSession();
+        Channel channel = session.createQuery("FROM Channel WHERE id = :id", Channel.class)
+            .setParameter("id", id)
+            .uniqueResult();
+        session.close();
+        
+        return channel;
+    }
+    
     public Channel saveChannel(Channel channel) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();

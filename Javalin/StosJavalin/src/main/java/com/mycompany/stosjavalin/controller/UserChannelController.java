@@ -12,6 +12,7 @@ import com.mycompany.stosjavalin.repository.UserChannelRepository;
 import com.mycompany.stosjavalin.repository.UserRepository;
 import com.mycompany.stosjavalin.service.ConfigData;
 import io.javalin.Javalin;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.SessionFactory;
@@ -31,6 +32,7 @@ public class UserChannelController {
     private void configureRoutes(SessionFactory sessionFactory) {
         UserChannelRepository userChannelRepository = new UserChannelRepository(sessionFactory);
         
+        //Роут со взятием всех каналов пользователя по фильтру активности
         javalin.get("/userChannels", ctx -> {
             String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
             
@@ -53,6 +55,7 @@ public class UserChannelController {
             }
         });
         
+        //Роут со взятием всех пользователей из группы по текущему пользователю и группе в которой он состоит
         javalin.get("/userChannels/usersByChannel", ctx -> {
             Long idChannel = Long.parseLong(ctx.queryParam("idChannel"));
             
