@@ -4,6 +4,7 @@
  */
 package com.mycompany.stosjavalin.controller;
 
+import com.mycompany.stosjavalin.dto.ChannelDto;
 import com.mycompany.stosjavalin.dto.UserChannelDto;
 import com.mycompany.stosjavalin.entity.Channel;
 import com.mycompany.stosjavalin.entity.User;
@@ -13,8 +14,11 @@ import com.mycompany.stosjavalin.repository.UserChannelRepository;
 import com.mycompany.stosjavalin.security.JwtSimple;
 import com.mycompany.stosjavalin.service.ConfigData;
 import io.javalin.Javalin;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.SessionFactory;
 
 /**
@@ -63,49 +67,103 @@ public class ChannelController {
             
             User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
             
-            List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
+            if (currentUser != null) {
+                List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
             
-            if (usersByChannel != null) {
-                for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) {
+                if (usersByChannel != null) {
+                    Channel channel = null;
                     
-                    System.out.println("IF (" + currentUserChannel.getUser().getId() + " =? " + currentUser.getId() + " &&");
-                    System.out.println(currentUserChannel.getIsAuthorUserForGroup() + " =? true)");
-                    System.out.println("______");
-                    System.out.println(currentUserChannel.getChannel().getName());
-                    System.out.println(currentUserChannel.getIsAuthorUserForGroup());
-                    
-                    if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
-                        && (currentUserChannel.getIsAuthorUserForGroup() == true)){ //и пользователь является администратором канала канала
-                        
-                        System.out.println("DUMP122 = ");
+                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                            && (currentUserChannel.getChannel().getId() == idChannel) //и перебираемый канал == передаваевому в запросе)
+                            && (currentUserChannel.getIsAuthorUserForGroup() == true)){ //и пользователь является администратором канала канала
+                            
+                            // 1. Парсим JSON в объект Channel
+                            Channel updateChannel = ctx.bodyAsClass(Channel.class);
 
-                        // 1. Парсим JSON в объект Channel
-                        Channel updateChannel = ctx.bodyAsClass(Channel.class);
-                        
-                        System.out.println(updateChannel.getId());
-                        System.out.println(updateChannel.getName());
-                        System.out.println(updateChannel.getDescription());
-                        System.out.println(updateChannel.getCreationDate());
-                        
-                        //меняем нашему измененному обьекту свойства которые мог бы задать клиент (для защиты)
-                        updateChannel.setId(idChannel); // задаем текущий id чтобы не было возможности изменить левую запись с другим id
-                        //?? updateChannel.setUserChannel(new ArrayList<UserChannel>()); // задаем пустой массив чтобы не было возможности создать userChannel из channel
-                        
-                        // 2. Сохраняем обьект в БД
-                        Channel channel = channelRepository.updateChannel(updateChannel);
-                        
-                        System.out.println("ответ json: \n");
-                        System.out.println(channel.getId());
-                        System.out.println(channel.getName());
-                        System.out.println(channel.getDescription());
-                        System.out.println(channel.getCreationDate());
-                        
-                        ctx.json(channel); // Автоматически в JSON
-                    } else {
-                        ctx.json("Ошибка - вы не можете обновить запись потому что не являетесь администратором канала!");
+                            //меняем нашему измененному обьекту свойства которые мог бы задать клиент (для защиты)
+                            updateChannel.setId(idChannel); // задаем текущий id чтобы не было возможности изменить левую запись с другим id
+                            updateChannel.setUserChannel(new ArrayList<UserChannel>()); //?? задаем пустой массив чтобы не было возможности создать userChannel из channel
+
+                            // 2. Сохраняем обьект в БД
+                            channel = channelRepository.updateChannel(updateChannel);
+                        }
                     }
-                }
 
+                    //вывод результата
+                    if (channel != null) {
+                        ctx.json(channel);
+                    } else {
+                        ctx.json("Ошибка - данный канал не найден для вашего пользователя, либо вы не являетесь его администратором!");
+                    }
+                    
+                } else {
+                    ctx.json("Данный пользователь не найден!");
+                }
+            } else {
+                ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
+            }
+        });
+        
+        javalin.patch("/channel/{id}", ctx -> {
+            UserChannelRepository userChannelRepository = new UserChannelRepository(sessionFactory);
+    
+            Long idChannel = Long.parseLong(ctx.pathParam("id"));;
+            
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+            
+            User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
+            
+            if (currentUser != null) {
+                List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
+            
+                if (usersByChannel != null) {
+                    ChannelDto channelDto = null;
+                    
+                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                            && (currentUserChannel.getChannel().getId() == idChannel) //и канал == передаваевому в запросе
+                            && (currentUserChannel.getIsAuthorUserForGroup() == true)){ //и пользователь является администратором канала канала
+
+                            // Парсим JSON тело запроса в Map
+                            Map<String, Object> updates = ctx.bodyAsClass(Map.class);
+
+                            //берем текущий перебираемый канал пользователя
+                            Channel currentChannel = currentUserChannel.getChannel();
+
+                            if (updates.containsKey("name")) {
+                                currentChannel.setName((String) updates.get("name"));
+                            }
+                            if (updates.containsKey("description")) {
+                                currentChannel.setDescription((String) updates.get("description"));
+                            }
+                            if (updates.containsKey("creationDate")) {
+                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+                                currentChannel.setCreationDate(format.parse((String) updates.get("creationDate")));
+                            }
+
+                            //меняем нашему измененному обьекту свойства которые мог бы задать клиент (для защиты)
+                            currentChannel.setId(idChannel); // задаем текущий id чтобы не было возможности изменить левую запись с другим id
+                            currentChannel.setUserChannel(new ArrayList<UserChannel>()); //?? задаем пустой массив чтобы не было возможности создать userChannel из channel
+
+                            // 2. Сохраняем обьект в БД
+                            Channel channel = channelRepository.updateChannel(currentChannel);
+
+                            channelDto = new ChannelDto(channel); // Автоматически в JSON
+                        }
+                    }
+                    
+                    //вывод результата
+                    if (channelDto != null) {
+                        ctx.json(channelDto);
+                    } else {
+                        ctx.json("");
+                    }
+
+                } else {
+                    ctx.json("Данный пользователь не найден!");
+                }
             } else {
                 ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
             }
