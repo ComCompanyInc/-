@@ -45,6 +45,12 @@ public class Channel {
     )
     private List<UserChannel> userChannel = new ArrayList<>();
     
+    @OneToMany(
+            mappedBy = "channel",
+            cascade = CascadeType.ALL
+    )
+    private List<Container> container = new ArrayList<>();
+    
     public Long getId() {
         return id;
     }
@@ -83,5 +89,13 @@ public class Channel {
 
     public void setUserChannel(List<UserChannel> userChannel) {
         this.userChannel = userChannel;
+    }
+
+    public List<Container> getContainer() {
+        return container;
+    }
+
+    public void setContainer(List<Container> container) {
+        this.container = container;
     }
 }

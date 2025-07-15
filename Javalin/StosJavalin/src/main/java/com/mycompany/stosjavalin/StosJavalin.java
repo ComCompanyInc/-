@@ -5,9 +5,11 @@
 package com.mycompany.stosjavalin;
 
 import com.mycompany.stosjavalin.controller.ChannelController;
+import com.mycompany.stosjavalin.controller.ContainerController;
 import com.mycompany.stosjavalin.controller.UserChannelController;
 import com.mycompany.stosjavalin.controller.UserController;
 import com.mycompany.stosjavalin.entity.Channel;
+import com.mycompany.stosjavalin.entity.Container;
 import com.mycompany.stosjavalin.entity.User;
 import com.mycompany.stosjavalin.entity.UserChannel;
 import io.javalin.Javalin;
@@ -26,6 +28,7 @@ public class StosJavalin {
             .addAnnotatedClass(User.class) // добавляем классы сущностей под управление HibernateORM
             .addAnnotatedClass(UserChannel.class)
             .addAnnotatedClass(Channel.class)
+            .addAnnotatedClass(Container.class)
             .buildSessionFactory();
     
     public static void main(String[] args) {
@@ -44,10 +47,11 @@ public class StosJavalin {
     }
     
     public void injection() {
-        //Важно: сначала регестрируем маршруты, потом добавляем middleware
+        //Инициализируем контроллеры
         UserController userController = new UserController(javalin, sessionFactory);
         UserChannelController userChannelController = new UserChannelController(javalin, sessionFactory);
         ChannelController channelController = new ChannelController(javalin, sessionFactory);
+        ContainerController containerController = new ContainerController(javalin, sessionFactory);
         
         javalin.start(port);
     }
