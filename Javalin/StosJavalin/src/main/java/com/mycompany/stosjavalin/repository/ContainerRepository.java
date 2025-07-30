@@ -4,6 +4,7 @@
  */
 package com.mycompany.stosjavalin.repository;
 
+import com.mycompany.stosjavalin.entity.Channel;
 import com.mycompany.stosjavalin.entity.Container;
 import com.mycompany.stosjavalin.entity.UserChannel;
 import com.mycompany.stosjavalin.service.ConfigData;
@@ -45,5 +46,14 @@ public class ContainerRepository {
         }
         
         return containers;
+    }
+    
+    public Container saveContainer(Container container) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.persist(container); // или merge() если нужно обновление
+        session.getTransaction().commit();
+        session.close();
+        return container;
     }
 }

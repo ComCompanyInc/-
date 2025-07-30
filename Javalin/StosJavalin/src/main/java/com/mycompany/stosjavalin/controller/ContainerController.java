@@ -4,15 +4,21 @@
  */
 package com.mycompany.stosjavalin.controller;
 
+import com.mycompany.stosjavalin.dto.ChannelDto;
 import com.mycompany.stosjavalin.dto.ContainerDto;
+import com.mycompany.stosjavalin.entity.Channel;
 import com.mycompany.stosjavalin.entity.Container;
 import com.mycompany.stosjavalin.entity.User;
+import com.mycompany.stosjavalin.entity.UserChannel;
+import com.mycompany.stosjavalin.repository.ChannelRepository;
 import com.mycompany.stosjavalin.repository.ContainerRepository;
 import com.mycompany.stosjavalin.repository.UserChannelRepository;
 import com.mycompany.stosjavalin.service.ConfigData;
 import io.javalin.Javalin;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.SessionFactory;
 
 /**
@@ -50,21 +56,27 @@ public class ContainerController {
                 
                 if (usersWithAccess != null) {
                     for (User user : usersWithAccess) {
-    //                    System.out.println("userId: " + user.getId());
-    //                    System.out.println("userName: " + user.getFirstName());
-    //                    System.out.println("userSurname: " + user.getLastName());
-    //                    System.out.println("__________________________________");
-
                         if (user.getId() == currentUser.getId()) { //если полученные id совпадают, выводим контейнеры выбранного канала
                             containerResults = containerRepository.findContainersForChannel(channelId, paginationPage, searchContainersFilter);
                         }
                     }
 
                     List<ContainerDto> containersDto = new ArrayList<ContainerDto>();
-                    for (Container container : containerResults) {
-                        containersDto.add(new ContainerDto(container));
+                    
+                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                            && (currentUserChannel.getChannel().getId() == channelId)) //и канал == передаваевому в запросе
+                        {
+                            
+                            for (Container container : containerResults) {
+                                if (container.getIsDeleted() == false) { //если контейнер не был помечен как удаленный, то добавляем в результат на получение
+                                    containersDto.add(new ContainerDto(container));
+                                }
+                            }
+                            
+                        }
                     }
-
+                    
                     ctx.json(containersDto);
                 } else {
                     ctx.json("Ошибка: Доступ заблокирован (пользоватебль пустой!)");
@@ -72,6 +84,56 @@ public class ContainerController {
                 
             } else {
                 ctx.json("Ошибка: пользоватебль пустой!");
+            }
+        });
+        
+        //сохранение нового контейнера в канале
+        /*
+        {
+            "description": "qwenjjrflkm",
+            "dateSending": 1134334800000,
+            "isDeleted": false,
+            "idNotes": null
+        }
+        */
+        javalin.post("channels/{id}/containers", ctx -> {
+            UserChannelRepository userChannelRepository = new UserChannelRepository(sessionFactory);
+            ContainerRepository containerRepository = new ContainerRepository(sessionFactory);
+            ChannelRepository channelRepository = new ChannelRepository(sessionFactory);
+            
+            Long idChannel = Long.parseLong(ctx.pathParam("id"));
+            
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+            
+            User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
+            
+            if (currentUser != null) {
+                List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
+            
+                if (usersByChannel != null) {
+                    ChannelDto channelDto = null;
+                    
+                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                            && (currentUserChannel.getChannel().getId() == idChannel) //и канал == передаваевому в запросе
+                        ){
+                            Container newContainer = ctx.bodyAsClass(Container.class); //берет из тесла запроса json и сериализует в обьект данного класса
+                            newContainer.setChannel(channelRepository.findChannelById(idChannel)); //сохраняем ключ канала в сообщение
+                            newContainer.setAuthor(currentUser); //сохраняем ключ автора в сообщение
+                            
+                            ContainerDto containerDto = new ContainerDto(containerRepository.saveContainer(newContainer));
+                            
+                            ctx.status(201).json(containerDto);
+                            
+                            break;
+                        }
+                    }
+
+                } else {
+                    ctx.json("Данный пользователь не найден!");
+                }
+            } else {
+                ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
             }
         });
     }

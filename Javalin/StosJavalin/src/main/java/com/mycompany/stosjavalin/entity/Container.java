@@ -5,6 +5,7 @@
 package com.mycompany.stosjavalin.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +39,7 @@ public class Container {
     private boolean isDeleted;
     
     @Column(name = "notes_id")
+    @JsonProperty("idNotes")
     private Long notes;
     
     @ManyToOne
