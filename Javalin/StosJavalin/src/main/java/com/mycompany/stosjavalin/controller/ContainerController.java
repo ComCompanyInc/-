@@ -136,5 +136,54 @@ public class ContainerController {
                 ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
             }
         });
+        
+        javalin.put("channels/{id}/containers", ctx -> {
+            UserChannelRepository userChannelRepository = new UserChannelRepository(sessionFactory);
+            ContainerRepository containerRepository = new ContainerRepository(sessionFactory);
+            ChannelRepository channelRepository = new ChannelRepository(sessionFactory);
+            
+            Long idChannel = Long.parseLong(ctx.pathParam("id"));
+            
+            Long idContainer = Long.parseLong(ctx.queryParam("idContainer"));
+            
+            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+            
+            User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
+            
+            if (currentUser != null) {
+                List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
+            
+                if (usersByChannel != null) {
+                    ContainerDto containerDto = null;
+                    
+                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+                            && (currentUserChannel.getChannel().getId() == idChannel) //и канал == передаваевому в запросе
+                        ){
+                            Container oldContainer = containerRepository.findById(idContainer);
+                            
+                            // 1. Парсим JSON в объект Channel
+                            Container updateContainer = ctx.bodyAsClass(Container.class);
+
+                            //меняем нашему измененному обьекту свойства которые мог бы задать клиент (для защиты)
+                            updateContainer.setId(idContainer); // задаем текущий id чтобы не было возможности изменить левую запись с другим id
+                            updateContainer.setAuthor(oldContainer.getAuthor()); // задаем то же значение чтобы не было возможности создать userChannel из channel
+                            updateContainer.setChannel(oldContainer.getChannel()); // задаем то же значение чтобы не было возможности создать userChannel из channel
+                            
+                            // 2. Сохраняем обьект в БД
+                            containerDto = new ContainerDto(containerRepository.updateContainer(updateContainer));
+                            
+                            ctx.status(201).json(containerDto);
+                            break;
+                        }
+                    }
+
+                } else {
+                    ctx.json("Данный пользователь не найден!");
+                }
+            } else {
+                ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
+            }
+        });
     }
 }

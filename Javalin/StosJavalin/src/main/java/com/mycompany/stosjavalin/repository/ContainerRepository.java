@@ -23,6 +23,14 @@ public class ContainerRepository {
         this.sessionFactory = sessionFactory;
     }
     
+    public Container findById(Long id) {
+        Session session = sessionFactory.openSession();
+        
+        return (Container)session.createQuery("FROM Container c WHERE (c.id = :id)")
+                .setParameter("id", id)
+                .getSingleResult();
+    }
+    
     public List<Container> findContainersForChannel(Long idChannel, int page, String searchFilter) {
         Session session = sessionFactory.openSession();
         
@@ -52,6 +60,15 @@ public class ContainerRepository {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.persist(container); // или merge() если нужно обновление
+        session.getTransaction().commit();
+        session.close();
+        return container;
+    }
+    
+    public Container updateContainer(Container container) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.merge(container); // или merge() если нужно обновление
         session.getTransaction().commit();
         session.close();
         return container;
