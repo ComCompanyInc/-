@@ -1,0 +1,62 @@
+### Как подключить jQuery для AJAX
+
+Вам нужно добавить одну строку перед вашим скриптом. Вот как это сделать правильно:
+
+```html
+<!-- Вставьте эту строку в <head> вашего HTML-документа -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- А затем ваш скрипт -->
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    // Теперь $.ajax будет работать, так как jQuery подключен
+    $.ajax({
+        url: 'http://localhost:7070/login',
+        method: 'POST',
+        data: { 
+            login: username, 
+            password: password 
+        },
+        success: function(data) {
+            const responseContainer = document.getElementById('response');
+            responseContainer.innerHTML = `
+                <h3>Ответ сервера:</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            responseContainer.style.display = 'block';
+        },
+        error: function(xhr) {
+            const responseContainer = document.getElementById('response');
+            responseContainer.innerHTML = `
+                <p style="color: red;">Ошибка: ${xhr.status} ${xhr.statusText}</p>
+            `;
+            responseContainer.style.display = 'block';
+        }
+    });
+});
+</script>
+```
+
+### Важные моменты:
+
+1. **Подключение jQuery должно быть перед вашим кодом**, иначе вы получите ошибку "$ is not defined"
+
+2. **Лучшее место для подключения** - в `<head>` или прямо перед закрывающим тегом `</body>`
+
+3. **Проверьте подключение** - после добавления jQuery обновите страницу и в консоли браузера (F12) проверьте:
+   ```javascript
+   console.log($); // Должна вывести функцию jQuery
+   console.log($.ajax); // Должна вывести функцию ajax
+   ```
+
+4. **Альтернативные CDN** (если основной не работает):
+   ```html
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   ```
+
+Теперь ваш код с `$.ajax()` будет работать корректно, так как библиотека jQuery будет доступна.

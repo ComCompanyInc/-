@@ -185,5 +185,45 @@ public class ContainerController {
                 ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
             }
         });
+        
+//        javalin.patch("channels/{id}/containers/{idContainer}", ctx -> {
+//        UserChannelRepository userChannelRepository = new UserChannelRepository(sessionFactory);
+//            ContainerRepository containerRepository = new ContainerRepository(sessionFactory);
+//            ChannelRepository channelRepository = new ChannelRepository(sessionFactory);
+//            
+//            Long idChannel = Long.parseLong(ctx.pathParam("id"));
+//            
+//            Long idContainer = Long.parseLong(ctx.pathParam("idContainer"));
+//            
+//            String authHeader = ctx.header("Authorization"); //берем заголовок из запроса с токеном
+//            
+//            User currentUser = ConfigData.translateJwtTockenToUserObject(authHeader, sessionFactory);
+//            
+//            if (currentUser != null) {
+//                List<User> usersByChannel = userChannelRepository.getUsersByChannel(idChannel, currentUser.getId());
+//            
+//                if (usersByChannel != null) {
+//                    ContainerDto containerDto = null;
+//                    
+//                    for(UserChannel currentUserChannel : userChannelRepository.getUserChannel(currentUser.getId())) { 
+//                        if ((currentUserChannel.getUser().getId() == currentUser.getId()) //если перебираемые каналы принадлежат текущему пользователю (по id)
+//                            && (currentUserChannel.getChannel().getId() == idChannel) //и канал == передаваевому в запросе
+//                        ){
+//                            Container oldContainer = containerRepository.findById(idContainer);
+//                            
+//                            
+//                            
+//                            ctx.status(201).json();
+//                            break;
+//                        }
+//                    }
+//
+//                } else {
+//                    ctx.json("Данный пользователь не найден!");
+//                }
+//            } else {
+//                ctx.json("Данный канал вам недоступен, либо в нем нет ни одного пользователя!");
+//            }
+//        });
     }
 }

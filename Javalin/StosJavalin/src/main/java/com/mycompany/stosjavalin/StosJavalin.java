@@ -39,7 +39,14 @@ public class StosJavalin {
     }
     
     public void setJavalinConfig() {
-       javalin = Javalin.create(/*config*/); 
+       javalin = Javalin.create(/*config*/ config -> {
+            // Разрешить CORS для всех origins (небезопасно для продакшена!)
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(corsConfig -> {
+                    corsConfig.anyHost();
+                });
+            });
+        }); 
     }
     
     public Javalin getJavalinConfig() {
